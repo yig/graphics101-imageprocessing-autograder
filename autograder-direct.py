@@ -45,7 +45,7 @@ tests = [
 # elif args.command == 'grade':
 
 ## Create the output location
-output_dir = os.path.join( here_dir, f'autograder_{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}' )
+output_dir = os.path.join( here_dir, f'autograder-{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}' )
 output_html = output_dir + '.html'
 assert not os.path.exists( output_dir )
 os.mkdir( output_dir )
