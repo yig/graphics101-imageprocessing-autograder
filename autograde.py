@@ -55,7 +55,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser( description = 'Grade raycasting.' )
     # parser.add_argument( 'command', choices = ['grade', 'truth'], help = 'The command to run.' )
-    parser.add_argument( 'exe', help = 'The path to the raycasting executable.' )
+    parser.add_argument( 'executable', help = 'The path to the raycasting executable.' )
     args = parser.parse_args()
     
     ## Collect all tests
@@ -67,9 +67,9 @@ if __name__ == '__main__':
     
     ## Run all tests in parallel:
     ## We must wrap the output in a list(), because otherwise nothing happens.
-    with multiprocessing.Pool() as pool: list(pool.starmap( run_one, ( (args.exe,t) for t in all_tests ), 1 ))
+    with multiprocessing.Pool() as pool: list(pool.starmap( run_one, ( (args.executable,t) for t in all_tests ), 1 ))
     ## Run all tests serially:
-    # map( run_one, all_tests )
+    # map( run_one, ( (args.executable,t) for t in all_tests ) )
     
     ## Organize them into categories
     category2test = {}
