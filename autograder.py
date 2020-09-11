@@ -39,42 +39,55 @@ output_html = output_dir + '.html'
 out = open( output_html, 'w' )
 out.write( open( "header.html" ).read() )
 
+scene_dict = {}
 ###
 ### Scene tests 
 ###
-
-out.write( '<h3>Scene Tests</h3>' )
-out.write( '''
-<table style="width:100%">
-<tr><th>Scene</th><th>Correct</th><th>Yours</th><th>Difference</th><th>Score</th></tr>
-''' )
 json_files = [f for f in listdir(json_directory) if '.json' in f]
 for json in json_files:
-	name = json.replace(".json","")
+	file_name = json.replace(".json","")
+	scene_list = []
+	if '_' in file_name:
+		scene_split = file_name.split('_', 1)
+		scane_type = scene_split[0]
+		scene_name = scene_split[1]
+		if scane_type in scene_dict:
+			scene_list = scene_dict[scane_type]
+	else:
+		scane_type = file_name
 	param_file = f"{json_directory}/{json}"
-	gt_path = f"{answer_result_path}/{name}.png"
-	test_path = f"{test_result_path}/{name}.png" 
-	diff_path = f"{diff_dir}/{name}-diff.png" 
+	gt_path = f"{answer_result_path}/{file_name}.png"
+	test_path = f"{test_result_path}/{file_name}.png" 
+	diff_path = f"{diff_dir}/{file_name}-diff.png" 
 	subprocess.call([answer_binary_path, param_file, gt_path, "500" ])
 	subprocess.call([test_binary_path, param_file, test_path, "500" ])
 	# comparison
-	diffimg = imgdiff.diff( gt_path, test_path, diff_path )
+	diffimg = imgdiff.mindiff_in_neighborhood( gt_path, test_path, diff_path )
 	score = 100 - np.average( np.abs( diffimg ) )*100
-	out.write( f'''
+	scene_list.append( f'''
 <tr>
-<td style="width:15%">{name}</td>
+<td style="width:15%">{file_name}</td>
 <td style="width:25%"><img src="{gt_path}"></td> 
 <td style="width:25%"><img src="{test_path}"></td>
 <td style="width:25%"><img src="{diff_path}"></td>
 <td style="width:10%"><label>{score}</label></td>
 </tr>
 ''' ) 
+	scene_dict[scane_type] = scene_list
+
+for scene_type, scene_name in scene_dict.items():
+	out.write( '<h3>{} tests</h3>'.format(scene_type) )
+	out.write( '''
+	<table style="width:100%">
+	<tr><th>Scene</th><th>Correct</th><th>Yours</th><th>Difference</th><th>Score</th></tr>
+	''' )
+	out.write( ''.join(scene_name))
+	out.write( '</table>' )
 
 ###
 ### Footer
 ###
 
-out.write( '</table>' )
 out.write( '</body>' )
 out.write( '</html>' )
 out.close()
