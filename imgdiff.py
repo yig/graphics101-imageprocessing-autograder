@@ -10,7 +10,7 @@ def diff( inpath1, inpath2, outpath = None ):
         inpath2: A path to an image
         outpath (optional): A path to an output
     Returns:
-        The difference as a numpy.array containing integer values between 0 and 255.
+        The absolute difference as a numpy.array containing integer values between 0 and 255.
     
     Computes the RGB-space difference image between the images stored at `inpath1` and `inpath2`.
     Saves the difference image to `outpath` if not None.
@@ -36,7 +36,7 @@ def diff( inpath1, inpath2, outpath = None ):
 def mindiff_in_neighborhood( inpath1, inpath2, outpath = None ):
     '''
     Just like diff(), except the difference at a pixel
-    is the smallest difference between any pixel
+    is the smallest absolute difference between any pixel
     in a 3x3 window centered at that pixel.
     That is not symmetric. An isolated pixel in image 2 will be erased by
     a 3x3 window. So we have to look once from image 1 to image 2
@@ -142,7 +142,6 @@ if __name__ == '__main__':
     parser.add_argument( 'image2', help = 'Another image to compare.' )
     parser.add_argument( 'outpath', help = 'A path to store the difference image.' )
     parser.add_argument( '--neighborhood', '-n', action='store_true', help = 'If specified, images will be the same if the same pixel is in a 3x3 neghborhood in the other image..' )
-    
     args = parser.parse_args()
     
     if args.neighborhood:
