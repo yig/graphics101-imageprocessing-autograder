@@ -22,7 +22,7 @@ HERE_DIR = Path( sys.path[0] )
 TESTS_DIR = HERE_DIR / 'scene_files'
 
 ## Where is the output stored?
-OUTPUT_DIR = HERE_DIR / f'autograder-{datetime.now().strftime("%Y-%m-%d at %H:%M:%S")}'
+OUTPUT_DIR = HERE_DIR / f'autograder-{datetime.now().strftime("%Y-%m-%d at %H.%M.%S")}'
 OUTPUT_HTML = Path( str(OUTPUT_DIR) + '.html' )
 
 ## How large are the output images?
