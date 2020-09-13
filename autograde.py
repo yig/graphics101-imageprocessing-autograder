@@ -22,7 +22,7 @@ HERE_DIR = Path( sys.path[0] )
 TESTS_DIR = HERE_DIR / 'scene_files'
 
 ## Where is the output stored?
-OUTPUT_DIR = HERE_DIR / f'autograder-{datetime.now().strftime("%Y-%m-%d at %H.%M.%S")}'
+OUTPUT_DIR = HERE_DIR / f'autograde-{datetime.now().strftime("%Y-%m-%d at %H-%M-%S")}'
 OUTPUT_HTML = Path( str(OUTPUT_DIR) + '.html' )
 
 ## How large are the output images?
@@ -37,16 +37,16 @@ LONG_EDGE_SIZE = 300
 
 ## A helper function to run one test. This needs to be out here
 ## so that multiprocessing finds it.
-def run_one( exepath, jsonpath ):
+def run_one( exepath, jsonpath, output_dir ):
     print( f"Starting {jsonpath.name}..." )
     subprocess.run([
         exepath,
         jsonpath,
-        jsonpath2outputpath( jsonpath ),
+        jsonpath2outputpath( jsonpath, output_dir ),
         str(LONG_EDGE_SIZE)
         ])
     print( f"Finished {jsonpath.name}." )
-def jsonpath2outputpath( jsonpath ): return OUTPUT_DIR / ( jsonpath.stem + '.png' )
+def jsonpath2outputpath( jsonpath, output_dir ): return output_dir / ( jsonpath.stem + '.png' )
 
 ## Since we use multiprocessing to run tests in parallel, we need to make
 ## sure this file can be imported without actually running the code.
@@ -62,21 +62,26 @@ if __name__ == '__main__':
     all_tests = sorted(TESTS_DIR.glob('*.json'))
     
     ## Create the output directory
+    print( OUTPUT_DIR )
     assert not OUTPUT_DIR.exists()
     os.makedirs( OUTPUT_DIR )
+    assert OUTPUT_DIR.exists()
     
     ## Run all tests in parallel:
     ## We must wrap the output in a list(), because otherwise nothing happens.
-    with multiprocessing.Pool() as pool: list(pool.starmap( run_one, ( (args.executable,t) for t in all_tests ), 1 ))
+    ## We must pass the output directory as a parameter,
+    ## since it is derived from the current time and that may be different in
+    ## other instantiations.
+    with multiprocessing.Pool() as pool: list(pool.starmap( run_one, ( (args.executable,test,OUTPUT_DIR) for test in all_tests ), 1 ))
     ## Run all tests serially:
-    # map( run_one, ( (args.executable,t) for t in all_tests ) )
+    # map( run_one, ( (args.executable,test,OUTPUT_DIR) for test in all_tests ) )
     
     ## Organize them into categories
     category2test = {}
     Test = namedtuple('Test', ['jsonpath', 'outputpath'])
     for jsonpath in all_tests:
         category = jsonpath.name.split('_')[0]
-        category2test.setdefault( category, [] ).append( Test( jsonpath, jsonpath2outputpath( jsonpath ) ) )
+        category2test.setdefault( category, [] ).append( Test( jsonpath, jsonpath2outputpath( jsonpath, OUTPUT_DIR ) ) )
     
     ## Measure and save the output
     out = open( OUTPUT_HTML, 'w' )
@@ -102,18 +107,19 @@ if __name__ == '__main__':
                 ## The score is the average absolute pixel difference.
                 ## These values range from 0 to 255.
                 ## Convert them to [0,1] and then scale to [100,0].
-                ## Boost by an extra 10x, since pixels may be subtly different.
-                score = max( 0, 100 - np.clip( np.average( np.abs( diffimg ) )/255, 0, 1 )*100*10 )
+                ## Boost differences by an extra 10x, since pixels may be subtly different.
+                score = int(round( max( 0, 100 - np.clip( np.average( np.abs( diffimg ) )/255, 0, 1 )*100*10 ) ))
+                diff_path_URI = diff_path.relative_to(HERE_DIR).as_posix()
             else:
-                diff_path = ""
+                diff_path_URI = ""
                 score = 0
             
             out.write( f'''
     <tr>
     <td style="width:15%">{test.jsonpath.name}</td>
-    <td style="width:25%"><img src="{gt_path}"></td> 
-    <td style="width:25%"><img src="{test.outputpath}"></td>
-    <td style="width:25%"><img src="{diff_path}"></td>
+    <td style="width:25%"><img src="{gt_path.relative_to(HERE_DIR).as_posix()}"></td>
+    <td style="width:25%"><img src="{test.outputpath.relative_to(HERE_DIR).as_posix()}"></td>
+    <td style="width:25%"><img src="{diff_path_URI}"></td>
     <td style="width:10%"><label>{score}</label></td>
     </tr>
     ''' )
