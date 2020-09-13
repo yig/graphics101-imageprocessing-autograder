@@ -59,7 +59,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     ## Collect all tests
-    all_tests = sorted(TESTS_DIR.glob('*.json'))
+    all_tests = sorted(list(TESTS_DIR.glob('*.json')))
     
     ## Create the output directory
     print( OUTPUT_DIR )
