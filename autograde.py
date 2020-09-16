@@ -39,10 +39,12 @@ LONG_EDGE_SIZE = 300
 ## so that multiprocessing finds it.
 def run_one( exepath, jsonpath, output_dir ):
     print( f"Starting {jsonpath.name}..." )
+    ## All this str(.as_posix()) business is to solve a problem on some Windows machines
+    ## the complained that a WindowsPath is not iterable.
     subprocess.run([
-        exepath,
-        jsonpath,
-        jsonpath2outputpath( jsonpath, output_dir ),
+        str(Path(exepath).as_posix()),
+        str(jsonpath.as_posix()),
+        str(jsonpath2outputpath( jsonpath, output_dir ).as_posix()),
         str(LONG_EDGE_SIZE)
         ])
     print( f"Finished {jsonpath.name}." )
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     ## other instantiations.
     with multiprocessing.Pool() as pool: list(pool.starmap( run_one, ( (args.executable,test,OUTPUT_DIR) for test in all_tests ), 1 ))
     ## Run all tests serially:
-    # map( run_one, ( (args.executable,test,OUTPUT_DIR) for test in all_tests ) )
+    # for test in all_tests: run_one( args.executable, test, OUTPUT_DIR )
     
     ## Organize them into categories
     category2test = {}
