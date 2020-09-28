@@ -75,13 +75,12 @@
         },
         
         {
-            "name": "front1",
+            "name": "front-far",
             "translate": [ 0,0,-6 ]
         },
         {
-            "name": "front2",
-            "translate": [ 0,0,-5 ],
-            "rotate": { "degrees": 180, "axis": [ 1,0,0 ] }
+            "name": "front-near",
+            "translate": [ 0,0,-5 ]
         }
     ],
     
@@ -99,13 +98,18 @@
         
         {
             "type": "plane",
-            "transform": "front1",
+            "transform": "front-far",
+            "material": "behind"
+        },
+        {
+            "type": "plane",
+            "transform": "front-near",
             "material": "front"
         },
         {
             "type": "plane",
-            "transform": "front2",
-            "material": "front"
+            "transform": "front-far",
+            "material": "behind"
         },
         
         {
