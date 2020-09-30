@@ -47,6 +47,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser( description = 'Grade Image Processing.' )
     # parser.add_argument( 'command', choices = ['grade', 'truth'], help = 'The command to run.' )
     parser.add_argument( 'executable', help = 'The path to the imageprocessing executable.' )
+    parser.add_argument( '--all', action = 'store_true', help = 'Whether to execute all tests.' )
+    parser.add_argument( '--all-but-convolve', action = 'store_true', help = 'Whether to execute all tests except convolve.' )
+    
+    parser.add_argument( '--grey', action = 'store_true', help = 'Whether to execute grey tests.' )
+    parser.add_argument( '--box', action = 'store_true', help = 'Whether to execute box tests.' )
+    parser.add_argument( '--edges', action = 'store_true', help = 'Whether to execute edge tests.' )
+    parser.add_argument( '--sharpen', action = 'store_true', help = 'Whether to execute sharpen tests.' )
+    parser.add_argument( '--scale', action = 'store_true', help = 'Whether to execute scale tests.' )
+    parser.add_argument( '--convolve', action = 'store_true', help = 'Whether to execute convolve tests.' )
     args = parser.parse_args()
     
     ## Collect all tests
@@ -73,6 +82,9 @@ if __name__ == '__main__':
         [ 'scale', '200', '50' ]
         ]
     all_tests.extend([ [ 'convolve', filter ] for filter in FILTERS ])
+    
+    ## Filter based on user input
+    all_tests = [ test for test in all_tests if vars(args)[test[0]] or args.all or (args.all_but_convolve and test[0] != 'convolve') ]
     
     ## Create the output directory
     print( OUTPUT_DIR )
