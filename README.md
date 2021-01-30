@@ -1,6 +1,6 @@
 # Image Processing Autograder
 
-This autograder is designed for  for [graphics101-imageprocessing](http://github.com/yig/graphics101-imageprocessing).
+This autograder is designed for [graphics101-imageprocessing](http://github.com/yig/graphics101-imageprocessing).
 Download this repository and run it via:
 
     python3 autograde.py path/to/build/imageprocessing --all
