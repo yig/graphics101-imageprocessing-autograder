@@ -139,12 +139,17 @@ if __name__ == '__main__':
             if outpath.exists():
                 diff_path = outpath.parent / (outpath.stem + '-diff.png')
                 diffimg = imgdiff.diff( gt_path, outpath, diff_path )
-                ## The score is the average absolute pixel difference.
-                ## These values range from 0 to 255.
-                ## Convert them to [0,1] and then scale to [100,0].
-                ## Boost differences by an extra 10x, since pixels may be subtly different.
-                score = int(round( max( 0, 100 - np.clip( np.average( np.abs( diffimg ) )/255, 0, 1 )*100*10 ) ))
-                diff_path_URI = diff_path.relative_to(HERE_DIR).as_posix()
+
+                if diffimg is None:       
+                    diff_path_URI = ""
+                    score = 0
+                else:
+                    ## The score is the average absolute pixel difference.
+                    ## These values range from 0 to 255.
+                    ## Convert them to [0,1] and then scale to [100,0].
+                    ## Boost differences by an extra 10x, since pixels may be subtly different.
+                    score = int(round( max( 0, 100 - np.clip( np.average( np.abs( diffimg ) )/255, 0, 1 )*100*10 ) ))
+                    diff_path_URI = diff_path.relative_to(HERE_DIR).as_posix()
             else:
                 diff_path_URI = ""
                 score = 0
